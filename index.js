@@ -11,43 +11,41 @@ let userList = [
   { email: 'test@example.com', password: 'test123' }
 ];
 
+app.get("/", (req, res) => {
+  res.send("Backend is running 🚀");
+});
+
 app.post('/api/login', (req, res) => {
-  const userEmail = req.body.email;
-  const userPassword = req.body.password;
-  
-  console.log('Someone trying to login:', userEmail);
-  
-  const foundUser = userList.find(user => user.email === userEmail);
-  
+  const { email, password } = req.body;
+  console.log('Someone trying to login:', email);
+
+  const foundUser = userList.find(user => user.email === email);
+
   if (!foundUser) {
     return res.status(404).json({ message: 'User not found' });
   }
-  
-  if (foundUser.password !== userPassword) {
+
+  if (foundUser.password !== password) {
     return res.status(401).json({ message: 'Wrong password' });
   }
-  
-  console.log('Login successful for:', userEmail);
-  res.json({ message: 'Login successful', email: userEmail });
+
+  console.log('Login successful for:', email);
+  res.json({ message: 'Login successful', email });
 });
 
 app.post('/api/signup', (req, res) => {
-  const newEmail = req.body.email;
-  const newPassword = req.body.password;
-  
-  console.log('Someone trying to signup:', newEmail);
-  
-  const existingUser = userList.find(user => user.email === newEmail);
-  
+  const { email, password } = req.body;
+  console.log('Someone trying to signup:', email);
+
+  const existingUser = userList.find(user => user.email === email);
   if (existingUser) {
     return res.status(409).json({ message: 'User already exists' });
   }
-  
-  userList.push({ email: newEmail, password: newPassword });
-  
-  console.log('New user created:', newEmail);
+
+  userList.push({ email, password });
+  console.log('New user created:', email);
   console.log('Total users now:', userList.length);
-  
+
   res.json({ message: 'Account created successfully' });
 });
 
@@ -56,7 +54,7 @@ app.get('/api/users', (req, res) => {
   res.json(safeUserList);
 });
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`✅ Server running on http://localhost:${PORT}`);
   console.log('✅ Ready to accept login/signup requests!');
